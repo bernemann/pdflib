@@ -95,4 +95,9 @@ class Pdf extends tFPDF
     {
         return false;
     }
+
+    public function getUnderline() : bool
+    {
+        return $this->underline;
+    }
 }

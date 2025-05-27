@@ -88,4 +88,9 @@ class Pdf extends FPDF
     {
         return false;
     }
+
+    public function getUnderline() : bool
+    {
+        return $this->underline;
+    }
 }

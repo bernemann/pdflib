@@ -90,10 +90,12 @@ for ($j = 0; $j < 45; $j++) {
         $row[1]['TEXT_TYPE'] = 'BI';
         $row[1]['ALIGN'] = 'MC';
 
-        $row[2]['TEXT'] = "\n\n\n\n\nBottom Left Align";
+        $row[2]['TEXT'] = "\n\n\n\n\nBottom Left Align Underline";
+        $row[2]['TEXT_TYPE'] = 'U';
         $row[2]['ALIGN'] = 'BL';
 
-        $row[3]['TEXT'] = 'Middle Justified Align Longer text';
+        $row[3]['TEXT'] = 'Middle Justified Align Longer text Bold Italic Underline';
+        $row[3]['TEXT_TYPE'] = 'BIU';
         $row[3]['ALIGN'] = 'MJ';
 
         $row[4]['TEXT'] = 'TOP RIGHT Align with top padding(5)';

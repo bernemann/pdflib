@@ -147,6 +147,11 @@ class MulticellOptions
         $current = strtoupper(Multicell::PDF_CURRENT);
         $this->styles[$current]['family'] = $this->pdfi->getFontFamily();
         $this->styles[$current]['style'] = $this->pdfi->getFontStyle();
+        if ( $this->pdfi->getUnderline() )
+        {
+            $this->styles[$current]['style'] .= 'U';
+        }
+
         $this->styles[$current]['size'] = $this->pdfi->getFontSizePt();
         $this->styles[$current]['color'] = PdfInterface::RAW . $this->pdf->TextColor;
 

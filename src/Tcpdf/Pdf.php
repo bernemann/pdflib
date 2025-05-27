@@ -94,4 +94,9 @@ class Pdf extends TCPDF
     {
         $this->Output($fileName, 'F');
     }
+
+    public function getUnderline() : bool
+    {
+        return $this->underline;
+    }
 }

@@ -306,4 +306,9 @@ class PdfInterface extends AbstractPdfUtils implements PdfInterfaceDef
     {
         return mb_strlen($s);
     }
+
+    public function getUnderline() : bool
+    {
+        return $this->pdf->getUnderline();
+    }
 }
