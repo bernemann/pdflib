@@ -209,6 +209,9 @@ class Multicell extends CellAbstract implements CellInterface
 
         $this->setCellDrawHeight($maxHeight);
 
+        // Store split state in current cell
+        $this->isSplitted = true;
+
         return [
             $oCell2,
             $splitHeight,
@@ -290,7 +293,8 @@ class Multicell extends CellAbstract implements CellInterface
             $this->getPaddingLeft(),
             $this->getPaddingTop(),
             $this->getPaddingRight(),
-            $this->getPaddingBottom()
+            $this->getPaddingBottom(),
+            $this->isSplitted
         );
     }
 
@@ -305,7 +309,8 @@ class Multicell extends CellAbstract implements CellInterface
         $pad_left = 0,
         $pad_top = 0,
         $pad_right = 0,
-        $pad_bottom = 0
+        $pad_bottom = 0,
+        $isSplitted = false
     ) {
         $wh_Top = 0;
 
@@ -336,6 +341,7 @@ class Multicell extends CellAbstract implements CellInterface
         $multicellData->paddingTop = $pad_top + $wh_T;
         $multicellData->paddingRight = $pad_right;
         $multicellData->paddingBottom = $pad_bottom;
+        $multicellData->isSplitted = $isSplitted;
 
         $this->multicell->saveStyles();
         $this->multicell->multiCellSec($multicellData, $txtData);

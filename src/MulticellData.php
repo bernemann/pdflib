@@ -68,6 +68,11 @@ class MulticellData
      */
     public $paddingBottom = 0;
 
+    /**
+     * @var bool
+     */
+    public $isSplitted = false;
+
     public $pdf;
 
     public function __construct($pdf)

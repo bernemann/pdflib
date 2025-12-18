@@ -883,7 +883,7 @@ class Multicell
             //check for last line
             $bLastLine = ! (count($data) > 0);
 
-            if ($bLastLine && ($align == 'J')) { //do not Justify the Last Line
+            if ($bLastLine && ($align == 'J') && !$multicellData->isSplitted) { //do not Justify the Last Line
                 $align = 'L';
             }
 

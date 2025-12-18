@@ -169,6 +169,14 @@ abstract class CellAbstract implements CellInterface
      */
     protected $bSkip = false;
 
+    /**
+     * If this cell was splitted during paginate
+     *
+     * @var bool
+     */
+    protected $isSplitted = false;
+
+
     public function __construct($pdf)
     {
         if ($pdf instanceof PdfInterface) {
