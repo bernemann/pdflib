@@ -442,6 +442,9 @@ abstract class CellAbstract implements CellInterface
         $x = $this->pdf->GetX();
         $y = $this->pdf->GetY();
 
+        //Set Font size to 0 ignore min height adjustment
+        $this->pdf->SetFontSize(0);
+
         //border size BORDER_SIZE
         $this->pdf->SetLineWidth($this->getBorderSize());
 
