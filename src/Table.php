@@ -1144,6 +1144,21 @@ class Table
                         }
 
                         if ($doSplit) {
+                            $hasContentBeforeSplit = false;
+                            foreach ($val['DATA'] as $c) {
+                                /** @var CellAbstract $c */
+                                if ($c->LINE_SIZE > 0.0 && ($c->LINE_SIZE + $c->getPaddingTop()) <= $iLeftHeightLast) {
+                                    $hasContentBeforeSplit = true;
+                                    break;
+                                }
+                            }
+
+                            if (!$hasContentBeforeSplit) {
+                                $doSplit = false;
+                            }
+                        }
+
+                        if ($doSplit) {
                             /**
                              * *************************************************
                              * * * * * * * * * * * * * * * * * * * * * * * * * *
