@@ -172,7 +172,7 @@ interface CellInterface
 
     /**
      * Sets the Border Color.
-     * If the value is set to FALSE, 0 or '0' then we assume transparency
+     * If the value is set to FALSE, 0, '0' or NULL then we assume transparency
      *
      * @param int|bool|array $r
      */

@@ -17,6 +17,7 @@
     },
     "require-dev": {
         "ext-json": "*",
+        "illuminate/support": "^9.52",
         "setasign/fpdf": "^1.8.6",
         "tecnickcom/tcpdf": "^6.7.0",
         "setasign/tfpdf": "^1.33.0",
