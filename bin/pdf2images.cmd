@@ -1,1 +1,8 @@
-find.exe ./tests/_files -type f -name "*.pdf"   | xargs -n1 sh -c 'magick -verbose -density 300 "$0[0]" -background white -flatten "${0%%.pdf}.png"'
+@echo off
+setlocal
+
+pushd "%~dp0.."
+for /r "tests\_files" %%F in (*.pdf) do (
+	magick -verbose -density 300 "%%~fF[0]" -background white -flatten "%%~dpnF.png"
+)
+popd

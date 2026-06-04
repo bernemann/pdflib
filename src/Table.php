@@ -1414,6 +1414,9 @@ class Table
 
         $count = count($dataCache);
 
+        /** @var CellInterface[] $prevRowData */
+        $prevRowData = null;
+
         for ($k = 0; $k < $count; $k++) {
             $val = &$dataCache[$k];
 
@@ -1423,6 +1426,7 @@ class Table
             if ($val['DATATYPE'] == 'new_page') {
                 //add a new page
                 $this->addPage();
+                $prevRowData = null; // page break resets adjacent-row tracking
 
                 continue;
             }
@@ -1446,6 +1450,25 @@ class Table
                         $cell->setCellDrawHeight($val['HEIGHT']);
                     }
 
+                    // Inform the cell whether an already-rendered adjacent border
+                    // sits on its top / left edge so the fill inset can be adjusted.
+                    if (method_exists($cell, 'setAdjacentBorderTop')) {
+                        $cell->setAdjacentBorderTop(
+                            $prevRowData !== null
+                            && isset($prevRowData[$i])
+                            && method_exists($prevRowData[$i], 'borderIncludesSide')
+                            && $prevRowData[$i]->borderIncludesSide('B')
+                        );
+                    }
+                    if (method_exists($cell, 'setAdjacentBorderLeft')) {
+                        $cell->setAdjacentBorderLeft(
+                            $i > 0
+                            && isset($data[$i - 1])
+                            && method_exists($data[$i - 1], 'borderIncludesSide')
+                            && $data[$i - 1]->borderIncludesSide('R')
+                        );
+                    }
+
                     $cell->render();
                 }
 
@@ -1453,6 +1476,8 @@ class Table
 
                 //if we have colspan, just ignore the next cells
             }
+
+            $prevRowData = $data;
 
             $this->dataOnCurrentPage = true;
 
