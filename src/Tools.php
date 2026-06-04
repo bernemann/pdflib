@@ -112,13 +112,17 @@ class Tools
     }
 
     /**
-     * Returns TRUE if value is FALSE(0, '0', FALSE)
+     * Returns TRUE if value is FALSE(0, '0', FALSE, NULL)
      *
      * @param mixed $value
      */
     public static function isFalse($value): bool
     {
         if (false === $value) {
+            return true;
+        }
+
+        if (null === $value) {
             return true;
         }
 

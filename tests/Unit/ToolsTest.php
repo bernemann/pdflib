@@ -48,4 +48,21 @@ class ToolsTest extends TestCase
         $this->assertSame(null, Tools::hex2rgb('#f4'));
         $this->assertSame(null, Tools::hex2rgb('f489'));
     }
+
+    public function testIsFalse(): void
+    {
+        // Test false values
+        $this->assertTrue(Tools::isFalse(false));
+        $this->assertTrue(Tools::isFalse(0));
+        $this->assertTrue(Tools::isFalse('0'));
+        $this->assertTrue(Tools::isFalse(null));
+
+        // Test non-false values
+        $this->assertFalse(Tools::isFalse(true));
+        $this->assertFalse(Tools::isFalse(1));
+        $this->assertFalse(Tools::isFalse('1'));
+        $this->assertFalse(Tools::isFalse(''));
+        $this->assertFalse(Tools::isFalse([]));
+        $this->assertFalse(Tools::isFalse([255, 255, 255]));
+    }
 }
