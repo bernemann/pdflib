@@ -169,6 +169,18 @@ abstract class CellAbstract implements CellInterface
      */
     protected $bSkip = false;
 
+    /**
+     * Whether the adjacent cell above has a bottom border (set by the table renderer).
+     * Used to protect that border from being covered by this cell's fill.
+     */
+    protected bool $adjacentBorderTop = false;
+
+    /**
+     * Whether the adjacent cell to the left has a right border (set by the table renderer).
+     * Used to protect that border from being covered by this cell's fill.
+     */
+    protected bool $adjacentBorderLeft = false;
+
     public function __construct($pdf)
     {
         if ($pdf instanceof PdfInterface) {
@@ -394,6 +406,32 @@ abstract class CellAbstract implements CellInterface
         return $this->bSkip;
     }
 
+    public function setAdjacentBorderTop(bool $value): void
+    {
+        $this->adjacentBorderTop = $value;
+    }
+
+    public function setAdjacentBorderLeft(bool $value): void
+    {
+        $this->adjacentBorderLeft = $value;
+    }
+
+    /**
+     * Returns true if this cell's border type includes the given side ('T', 'B', 'L', 'R').
+     */
+    public function borderIncludesSide(string $side): bool
+    {
+        $bt = $this->getBorderType();
+        if ($bt === 1 || $bt === '1') {
+            return true;
+        }
+        if ($bt === 0 || $bt === '0' || $bt === '') {
+            return false;
+        }
+
+        return strpos((string) $bt, $side) !== false;
+    }
+
     public function __get($property)
     {
         if (isset($this->properties[$property])) {
@@ -447,15 +485,61 @@ abstract class CellAbstract implements CellInterface
         [$r, $g, $b] = $this->getBorderColor();
         $this->pdf->SetDrawColor($r, $g, $b);
 
-        $this->pdf->Cell(
-            $this->getCellDrawWidth(),
-            $this->getCellDrawHeight(),
-            '',
-            $this->getBorderType(),
-            0,
-            '',
-            ! $this->isTransparent()
-        );
+        $borderType = $this->getBorderType();
+        $width = $this->getCellDrawWidth();
+        $height = $this->getCellDrawHeight();
+        $borderSize = $this->getBorderSize();
+
+        // For any border type other than 0 (no border) or 1 (all borders with Cell()),
+        // draw manually to avoid overwriting adjacent borders
+        if ($borderType !== 0 && $borderType !== '0' && $borderType !== 1 && $borderType !== '1') {
+            $borderStr = (string) $borderType;
+            $hasTop = strpos($borderStr, 'T') !== false;
+            $hasBottom = strpos($borderStr, 'B') !== false;
+            $hasLeft = strpos($borderStr, 'L') !== false;
+            $hasRight = strpos($borderStr, 'R') !== false;
+
+            // Inset on sides that have a border on THIS cell, or where an adjacent
+            // cell already drew a border on the shared edge (to avoid covering it).
+            if (! $this->isTransparent()) {
+                $insetLeft = ($hasLeft || $this->adjacentBorderLeft) ? $borderSize / 2 : 0;
+                $insetRight = $hasRight ? $borderSize / 2 : 0;
+                $insetTop = ($hasTop || $this->adjacentBorderTop) ? $borderSize / 2 : 0;
+                $insetBottom = $hasBottom ? $borderSize / 2 : 0;
+                $this->pdf->Rect(
+                    $x + $insetLeft,
+                    $y + $insetTop,
+                    max(0, $width - $insetLeft - $insetRight),
+                    max(0, $height - $insetTop - $insetBottom),
+                    'F'
+                );
+            }
+
+            // Manually draw each requested border side
+            if ($hasTop) {
+                $this->pdf->Line($x, $y, $x + $width, $y);
+            }
+            if ($hasBottom) {
+                $this->pdf->Line($x, $y + $height, $x + $width, $y + $height);
+            }
+            if ($hasLeft) {
+                $this->pdf->Line($x, $y, $x, $y + $height);
+            }
+            if ($hasRight) {
+                $this->pdf->Line($x + $width, $y, $x + $width, $y + $height);
+            }
+        } else {
+            // For 0 (no border) or 1 (all sides), use standard Cell()
+            $this->pdf->Cell(
+                $this->getCellDrawWidth(),
+                $this->getCellDrawHeight(),
+                '',
+                $borderType,
+                0,
+                '',
+                ! $this->isTransparent()
+            );
+        }
 
         $this->pdf->SetXY($x, $y);
     }
