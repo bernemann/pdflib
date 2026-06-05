@@ -1414,6 +1414,11 @@ class Table
 
         $count = count($dataCache);
 
+        // Collect cell border data for deferred rendering.
+        // Borders are drawn after all cell backgrounds and content on a page
+        // to prevent background fills from overwriting previously drawn borders.
+        $pendingBorders = [];
+
         for ($k = 0; $k < $count; $k++) {
             $val = &$dataCache[$k];
 
@@ -1421,6 +1426,9 @@ class Table
             $this->tbAlign();
 
             if ($val['DATATYPE'] == 'new_page') {
+                // Flush pending cell borders before switching to the new page
+                $this->flushPendingBorders($pendingBorders);
+
                 //add a new page
                 $this->addPage();
 
@@ -1447,6 +1455,9 @@ class Table
                     }
 
                     $cell->render();
+
+                    // Collect border data for deferred rendering
+                    $pendingBorders[] = ['cell' => $cell, 'x' => $x, 'y' => $y];
                 }
 
                 $this->pdf->SetXY($x + $this->getColumnWidth($i), $y);
@@ -1460,7 +1471,26 @@ class Table
             $this->pdf->Ln($val['HEIGHT']);
         }
 
+        // Flush remaining cell borders for the last page
+        $this->flushPendingBorders($pendingBorders);
+
         $this->pdf->SetAutoPageBreak($oldAutoPageBreak, $oldbMargin);
+    }
+
+    /**
+     * Draws all pending cell borders that were deferred during cell rendering.
+     * Clears the pending borders array after drawing.
+     *
+     * @param array $pendingBorders Array of ['cell' => CellInterface, 'x' => float, 'y' => float]
+     */
+    protected function flushPendingBorders(array &$pendingBorders): void
+    {
+        foreach ($pendingBorders as $borderData) {
+            /** @var \EvoSys21\PdfLib\Table\Cell\CellAbstract $cell */
+            $cell = $borderData['cell'];
+            $cell->renderBorder($borderData['x'], $borderData['y']);
+        }
+        $pendingBorders = [];
     }
 
     /**
