@@ -427,62 +427,68 @@ abstract class CellAbstract implements CellInterface
     }
 
     /**
-     * Renders the base cell layout - Borders and Background Color
+     * Renders the base cell layout - Background Color only.
+     * Borders are drawn separately via renderBorder() to prevent background fills
+     * from overwriting borders of adjacent cells.
      */
     public function renderCellLayout()
     {
         $x = $this->pdf->GetX();
         $y = $this->pdf->GetY();
 
-        //border size BORDER_SIZE
-        $this->pdf->SetLineWidth($this->getBorderSize());
-
+        // Draw background fill only (borders are deferred)
         if (! $this->isTransparent()) {
-            //fill color = BACKGROUND_COLOR
             [$r, $g, $b] = $this->getBackgroundColor();
             $this->pdf->SetFillColor($r, $g, $b);
-        }
-
-        //Draw Color = BORDER_COLOR
-        [$r, $g, $b] = $this->getBorderColor();
-        $this->pdf->SetDrawColor($r, $g, $b);
-
-        $borderType = $this->getBorderType();
-
-        // For single-sided borders, draw manually to avoid corner artifacts and overlap issues
-        if ($borderType === 'B' || $borderType === 'T' || $borderType === 'L' || $borderType === 'R') {
-            $width = $this->getCellDrawWidth();
-            $height = $this->getCellDrawHeight();
-
-            // Draw background using Rect to avoid overwriting adjacent borders
-            if (! $this->isTransparent()) {
-                $this->pdf->Rect($x, $y, $width, $height, 'F');
-            }
-
-            // Manually draw the specific border
-            if ($borderType === 'B') {
-                $this->pdf->Line($x, $y + $height, $x + $width, $y + $height);
-            } elseif ($borderType === 'T') {
-                $this->pdf->Line($x, $y, $x + $width, $y);
-            } elseif ($borderType === 'L') {
-                $this->pdf->Line($x, $y, $x, $y + $height);
-            } elseif ($borderType === 'R') {
-                $this->pdf->Line($x + $width, $y, $x + $width, $y + $height);
-            }
-        } else {
-            // For other border types (all sides, combinations), use standard Cell()
-            $this->pdf->Cell(
-                $this->getCellDrawWidth(),
-                $this->getCellDrawHeight(),
-                '',
-                $borderType,
-                0,
-                '',
-                ! $this->isTransparent()
-            );
+            $this->pdf->Rect($x, $y, $this->getCellDrawWidth(), $this->getCellDrawHeight(), 'F');
         }
 
         $this->pdf->SetXY($x, $y);
+    }
+
+    /**
+     * Draws the cell borders at the specified position using Line() calls.
+     * This is called after all cell backgrounds and content are rendered,
+     * so borders are never overwritten by subsequent cell fills.
+     */
+    public function renderBorder(float $x, float $y): void
+    {
+        $borderType = $this->getBorderType();
+
+        // No border
+        if ($borderType === '0' || $borderType === 0) {
+            return;
+        }
+
+        $this->pdf->SetLineWidth($this->getBorderSize());
+
+        [$r, $g, $b] = $this->getBorderColor();
+        $this->pdf->SetDrawColor($r, $g, $b);
+
+        $w = $this->getCellDrawWidth();
+        $h = $this->getCellDrawHeight();
+
+        // Draw all borders when type is 1/'1', otherwise draw specified sides
+        $drawAll = ($borderType === 1 || $borderType === '1');
+        $borderStr = (string) $borderType;
+
+        $drawT = $drawAll || str_contains($borderStr, 'T');
+        $drawB = $drawAll || str_contains($borderStr, 'B');
+        $drawL = $drawAll || str_contains($borderStr, 'L');
+        $drawR = $drawAll || str_contains($borderStr, 'R');
+
+        if ($drawT) {
+            $this->pdf->Line($x, $y, $x + $w, $y);
+        }
+        if ($drawB) {
+            $this->pdf->Line($x, $y + $h, $x + $w, $y + $h);
+        }
+        if ($drawL) {
+            $this->pdf->Line($x, $y, $x, $y + $h);
+        }
+        if ($drawR) {
+            $this->pdf->Line($x + $w, $y, $x + $w, $y + $h);
+        }
     }
 
     protected function isTransparent(): bool

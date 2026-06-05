@@ -3,6 +3,10 @@
 /**
  * Pdf Advanced Multicell - Example
  */
+require_once __DIR__ . '/autoload.php';
+
+use EvoSys21\PdfLib\Dev\DevFactory;
+
 $factory = new DevFactory();
 
 // Create the Advanced Multicell Object and inject the PDF object

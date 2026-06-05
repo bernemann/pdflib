@@ -56,6 +56,13 @@ interface CellInterface
     public function render();
 
     /**
+     * Draws the cell borders at the specified position.
+     * Called after all cell backgrounds and content are rendered so borders
+     * are never overwritten by subsequent cell background fills.
+     */
+    public function renderBorder(float $x, float $y): void;
+
+    /**
      * Returns the colspan value
      */
     public function getColSpan(): int;

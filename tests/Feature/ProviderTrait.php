@@ -38,6 +38,7 @@ trait ProviderTrait
             'test-multicell-style.php',
             'test-multicell-disable-pagebreak.php',
             'test-multicell-min-height.php',
+            'test-table-borders.php',
         ];
 
         $contexts = [
