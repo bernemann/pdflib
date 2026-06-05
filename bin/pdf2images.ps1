@@ -15,15 +15,19 @@ if (-not (Test-Path $Root)) {
     throw "Root path '$Root' does not exist."
 }
 
-$pdfs = Get-ChildItem $Root -Filter *.pdf -Recurse -File
+$pdfs = @(Get-ChildItem $Root -Filter *.pdf -Recurse -File)
 
-if (-not $pdfs) {
-    Write-Host "No PDF files found in '$Root'."
+if ($pdfs.Count -eq 0) {
+    Write-Host "No PDF files found in '$Root'." -ForegroundColor Yellow
     exit 0
 }
 
+Write-Host "Found $($pdfs.Count) PDF file(s). Converting..." -ForegroundColor Cyan
+
 foreach ($pdf in $pdfs) {
     $png = [IO.Path]::ChangeExtension($pdf.FullName, "png")
+
+    Write-Host "$($pdf.Name)" -NoNewline
 
     magick `
         -density $Density `
@@ -33,5 +37,7 @@ foreach ($pdf in $pdfs) {
         -define png:exclude-chunk=tIME,tEXt,zTXt `
         $png
 
-    Write-Host "Converted: $($pdf.Name)"
+    Write-Host " -> $([IO.Path]::GetFileName($png))" -ForegroundColor Green
 }
+
+Write-Host "Done. $($pdfs.Count) file(s) converted." -ForegroundColor Cyan
